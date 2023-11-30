@@ -235,6 +235,10 @@ li:hover {
 .gallery img {
   width: 100%;
 }
+
+.hide {
+  display: none;
+}
 #contact {
   width: 50%;
   margin: auto;

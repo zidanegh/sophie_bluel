@@ -1,3 +1,5 @@
+
+
 const response = await fetch("http://localhost:5678/api/works");
 const get_works = await response.json();
 
@@ -14,6 +16,7 @@ for (let i = 0; i < 3; i++) {
   creat_btn.classList.add("list-btn--style");
   div_btn.appendChild(creat_btn);
   creat_btn.innerHTML = chemin_btn.name;
+  creat_btn. = chemin_btn.name;
 }
 const class_btn = document.querySelectorAll(".list-btn--style");
 const selected_btn = document.querySelector(".list-btn__selected");
