@@ -1,6 +1,18 @@
+async function getLogin() {
+  const response = await fetch("http://localhost:5678/api/users/login");
+  const getLogins = await response.json();
+  return getLogins;
+}
 
+let baliseUl = document.querySelector("nav ul");
+const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
+console.log(baliseLiLogin);
+baliseLiLogin.addEventListener("click", () => {
+  const cheminRedirection = "./assets/login.html";
+  window.location.href = cheminRedirection;
+});
 
-const response = await fetch("http://localhost:5678/api/works");
+/*const response = await fetch("http://localhost:5678/api/works");
 const get_works = await response.json();
 
 const div_btn = document.querySelector(".list-btn");
@@ -25,4 +37,4 @@ console.log(class_btn);
 class_btn.addEventListener("click", () => {
   btn.add("list-btn__selected");
   console.log(events);
-});
+});*/

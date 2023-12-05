@@ -51,35 +51,72 @@ async function initbtn() {
   return listeCategories;
 }
 
+async function filtreur(nbr) {
+  const execution = await getWorks();
+  const executionpage = await initPage();
+  const projet = Array.from(execution);
+  const me = document.querySelectorAll("#portfolio figure");
+  const mee = document.querySelector("#portfolio figure");
+  const idImg = projet.forEach((element) => {
+    const categoryId = element.categoryId;
+    const Id = element.id;
+    console.log(Id);
+    const idDisplay = nbr;
+    if (categoryId === idDisplay) {
+      Id.forEach((element) => {
+        mee.classList.remove("hide");
+      });
+      console.log("la loupe");
+    } else {
+      mee.classList.add("hide");
+    }
+    if (idDisplay === 0) {
+      mee.classList.remove("hide");
+    }
+  });
+  return idImg;
+}
 async function filtre() {
   const execution = await initbtn();
-  const listeFilter = document.querySelectorAll(".list-btn--style");
-  const btn = document.querySelector(".list-btn--style");
-  listeFilter.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (btn === document.querySelector(".list-btn__selected")) {
-        btn.classList.remove("list-btn__selected");
-      } else {
-        btn.classList.add("list-btn__selected");
-      }
-
-      console.log("ça clique ici");
-      console.log(btn);
-    });
+  const btnDataId1 = document.querySelector('[data-id="1"]');
+  const btnDataId2 = document.querySelector('[data-id="2"]');
+  const btnDataId3 = document.querySelector('[data-id="3"]');
+  const btntous = document.querySelector(".list-btn--style");
+  btntous.addEventListener("click", () => {
+    filtreur(0);
+    console.log("prout");
+  });
+  btnDataId1.addEventListener("click", () => {
+    filtreur(1);
+  });
+  btnDataId2.addEventListener("click", () => {
+    filtreur(2);
+  });
+  btnDataId3.addEventListener("click", () => {
+    filtreur(3);
   });
 }
+
 filtre();
-
-async function filtreur() {
-  const execution = await getcategories();
-  const id = Array.from(execution);
-  for (let i = 0; i < id.length; i++) {
-    let attrDataId = i.getAttribute("data-id");
-  }
-  console.log(attrDataId);
-}
-
-filtreur();
+//async function filtre(id) {
+//const executions = await initbtn();
+//const chercheur = await filtreur();
+//const listeFilter = document.querySelectorAll(`[data-id='${id}']`);
+//console.log(listeFilter);
+//const btn = document.querySelector(".list-btn--style");
+//const prout = chercheur.categoryId;
+//console.log(prout);
+//listeFilter.forEach((button) => {
+//  button.addEventListener("click", async (i) => {
+//    const dataId = document.querySelector(`[data-id='${i}']`);
+//    console.log(dataId);
+//
+//    btn.classList.add("list-btn__selected");
+//    console.log("ça clique ici");
+//  });
+//});
+//}
+//filtre();
 
 //const portfolio = document.getElementById("portfolio");
 //const gallery = document.querySelector(".gallery");
