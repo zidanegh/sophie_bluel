@@ -11,12 +11,42 @@
       rel="stylesheet"
     />
     <meta name="description" content="" />
-    <link rel="stylesheet" href="./assets/style.css" />
+    <link rel="stylesheet" href="./style.css" />
   </head>
-  <body>
+  <body id="body__login">
     <header>
       <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+      <nav>
+        <ul>
+          <li>projets</li>
+          <li>contact</li>
+          <li>login</li>
+          <li><img src="./icons/instagram.png" alt="Instagram" /></li>
+        </ul>
+      </nav>
     </header>
+    <main id="container__connexion">
+      <form method="post" class="form">
+        <h2>Log In</h2>
+        <div>
+          <label><b>E-mail</b></label>
+          <input type="email" name="email" id="email" required />
+        </div>
+        <div>
+          <label><b>Mot de passe</b></label>
+          <input type="password" name="password" id="motdepasse" required />
+        </div>
+        <input type="submit" id="submit" value="Se connecter" />
+        <a href="./icons/instagram.png">Mot de passe oublié</a>
+      </form>
+    </main>
+    <footer>
+      <nav>
+        <ul>
+          <li>Mentions Légales</li>
+        </ul>
+      </nav>
+    </footer>
     <script type="module" src="./login.js"></script>
   </body>
 </html>

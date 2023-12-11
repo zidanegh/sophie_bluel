@@ -1,40 +1,63 @@
-async function getLogin() {
-  const response = await fetch("http://localhost:5678/api/users/login");
-  const getLogins = await response.json();
-  return getLogins;
+//async function getLogin() {
+//const response = await fetch("http://localhost:5678/api/users/login", {
+//method: "POST",
+//headers: {
+// Authorization:
+//"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY1MTg3NDkzOSwiZXhwIjoxNjUxOTYxMzM5fQ.JGN1p8YIfR-M-5eQ-Ypy6Ima5cKA4VbfL2xMr2MgHm4",
+//"Content-Type": "application/json",
+//},
+//body: verificationtoken(),
+//});
+//const getLogins = await response.json();
+//return getLogins;
+//}
+
+function redirect() {
+  let baliseUl = document.querySelector("nav ul");
+  const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
+  baliseLiLogin.addEventListener("click", () => {
+    const cheminRedirection = "./assets/login.html";
+    window.location.href = cheminRedirection;
+  });
+}
+redirect();
+
+async function preventDefault() {
+  const form = document.querySelector(".form");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const connexion = {
+      email: event.target.querySelector("[name=email]").value,
+      password: event.target.querySelector("[name=password]").value,
+    };
+    console.log(connexion);
+    const chargeUtile = JSON.stringify(connexion);
+    await fetch("http://localhost:5678/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: chargeUtile,
+    });
+    token();
+  });
+}
+preventDefault();
+
+function verificationinput() {
+  const email = document.getElementById("email");
+  const motDePasse = document.getElementById("motdepasse");
+  email.addEventListener("change", (event) => {
+    console.log(email);
+    email.classList.add("red");
+  });
+  motDePasse.addEventListener("change", (event) => {
+    console.log(motDePasse);
+    motDePasse.classList.add("red");
+  });
 }
 
-let baliseUl = document.querySelector("nav ul");
-const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
-console.log(baliseLiLogin);
-baliseLiLogin.addEventListener("click", () => {
-  const cheminRedirection = "./assets/login.html";
-  window.location.href = cheminRedirection;
-});
-
-/*const response = await fetch("http://localhost:5678/api/works");
-const get_works = await response.json();
-
-const div_btn = document.querySelector(".list-btn");
-
-creat_btn.classList.add("list-btn--style");
-creat_btn.classList.add("list-btn__selected");
-div_btn.appendChild(creat_btn);
-creat_btn.innerHTML = "tous";
-
-for (let i = 0; i < 3; i++) {
-  let chemin_btn = get_works[i].category;
-  let creat_btn = document.createElement("button");
-  creat_btn.classList.add("list-btn--style");
-  div_btn.appendChild(creat_btn);
-  creat_btn.innerHTML = chemin_btn.name;
-  creat_btn. = chemin_btn.name;
+function token(tokens) {
+  const takeToken = tokens.token;
+  console.log(takeToken);
 }
-const class_btn = document.querySelectorAll(".list-btn--style");
-const selected_btn = document.querySelector(".list-btn__selected");
-const btn = document.querySelector("button");
-console.log(class_btn);
-class_btn.addEventListener("click", () => {
-  btn.add("list-btn__selected");
-  console.log(events);
-});*/

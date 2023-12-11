@@ -19,15 +19,22 @@ function cardUi(work) {
   `;
 }
 
-async function initPage() {
-  const listeWorks = await getWorks();
+function displayWorks(listeWork) {
   const gallery = document.querySelector(".gallery");
   gallery.innerHTML = "";
-  listeWorks.forEach((item) => {
+  listeWork.forEach((item) => {
     const nodeui = cardUi(item);
     gallery.innerHTML += nodeui;
   });
 }
+
+async function initPage() {
+  const listeWorks = await getWorks();
+  const gallery = document.querySelector(".gallery");
+  displayWorks(listeWorks);
+  initFiltre(listeWorks);
+}
+
 initPage();
 
 function category(categorie) {
@@ -42,6 +49,7 @@ async function initbtn() {
   const createBtn = document.createElement("button");
   createBtn.classList.add("list-btn--style");
   createBtn.classList.add("list-btn__selected");
+  createBtn.setAttribute("data-id", 0);
   listBtn.appendChild(createBtn);
   createBtn.innerHTML = "tous";
   listeCategories.forEach((item) => {
@@ -51,88 +59,31 @@ async function initbtn() {
   return listeCategories;
 }
 
-async function filtreur(nbr) {
-  const execution = await getWorks();
-  const executionpage = await initPage();
-  const projet = Array.from(execution);
-  const me = document.querySelectorAll("#portfolio figure");
-  const mee = document.querySelector("#portfolio figure");
-  const idImg = projet.forEach((element) => {
-    const categoryId = element.categoryId;
-    const Id = element.id;
-    console.log(Id);
-    const idDisplay = nbr;
-    if (categoryId === idDisplay) {
-      Id.forEach((element) => {
-        mee.classList.remove("hide");
-      });
-      console.log("la loupe");
-    } else {
-      mee.classList.add("hide");
-    }
-    if (idDisplay === 0) {
-      mee.classList.remove("hide");
-    }
-  });
-  return idImg;
-}
-async function filtre() {
-  const execution = await initbtn();
-  const btnDataId1 = document.querySelector('[data-id="1"]');
-  const btnDataId2 = document.querySelector('[data-id="2"]');
-  const btnDataId3 = document.querySelector('[data-id="3"]');
-  const btntous = document.querySelector(".list-btn--style");
-  btntous.addEventListener("click", () => {
-    filtreur(0);
-    console.log("prout");
-  });
-  btnDataId1.addEventListener("click", () => {
-    filtreur(1);
-  });
-  btnDataId2.addEventListener("click", () => {
-    filtreur(2);
-  });
-  btnDataId3.addEventListener("click", () => {
-    filtreur(3);
-  });
+function filtreur(idCategory, works) {
+  let workResult;
+  const id = Number.parseInt(idCategory);
+  if (id === 0) {
+    workResult = works;
+  } else {
+    workResult = works.filter((work) => work.categoryId === id);
+  }
+  displayWorks(workResult);
 }
 
-filtre();
-//async function filtre(id) {
-//const executions = await initbtn();
-//const chercheur = await filtreur();
-//const listeFilter = document.querySelectorAll(`[data-id='${id}']`);
-//console.log(listeFilter);
-//const btn = document.querySelector(".list-btn--style");
-//const prout = chercheur.categoryId;
-//console.log(prout);
-//listeFilter.forEach((button) => {
-//  button.addEventListener("click", async (i) => {
-//    const dataId = document.querySelector(`[data-id='${i}']`);
-//    console.log(dataId);
-//
-//    btn.classList.add("list-btn__selected");
-//    console.log("ça clique ici");
-//  });
-//});
-//}
-//filtre();
-
-//const portfolio = document.getElementById("portfolio");
-//const gallery = document.querySelector(".gallery");
-//const gallery_div = document.createElement("div");
-//gallery_div.classList.add("gallery");
-//portfolio.appendChild(gallery_div);
-//const figure = document.createElement("figure");
-//for (let i = 0; i < get_works.length; i++) {
-//  const img = document.createElement("img");
-//  img.src = get_works[i].imageUrl;
-//  const figcaption = document.createElement("figcaption");
-//  figcaption.innerHTML = get_works[i].title;
-//  const figure = document.createElement("figure");
-//  gallery_div.appendChild(figure);
-//  figure.appendChild(img);
-//  figure.appendChild(figcaption);
-//}
+async function initFiltre(works) {
+  await initbtn();
+  const listeFilter = document.querySelectorAll(".list-btn--style");
+  listeFilter.forEach((button) => {
+    button.addEventListener("click", () => {
+      //console.log(button);
+      const dataId = button.dataset.id;
+      //console.log(dataId);
+      const attr = button.getAttribute("data-id");
+      listeFilter.forEach((btn) => btn.classList.remove("list-btn__selected"));
+      button.classList.add("list-btn__selected");
+      filtreur(dataId, works);
+    });
+  });
+}
 
 export { getWorks };
