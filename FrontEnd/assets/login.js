@@ -1,27 +1,4 @@
-//async function getLogin() {
-//const response = await fetch("http://localhost:5678/api/users/login", {
-//method: "POST",
-//headers: {
-// Authorization:
-//"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY1MTg3NDkzOSwiZXhwIjoxNjUxOTYxMzM5fQ.JGN1p8YIfR-M-5eQ-Ypy6Ima5cKA4VbfL2xMr2MgHm4",
-//"Content-Type": "application/json",
-//},
-//body: verificationtoken(),
-//});
-//const getLogins = await response.json();
-//return getLogins;
-//}
-
-function redirect() {
-  let baliseUl = document.querySelector("nav ul");
-  const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
-  baliseLiLogin.addEventListener("click", () => {
-    const cheminRedirection = "./assets/login.html";
-    window.location.href = cheminRedirection;
-  });
-}
-redirect();
-
+import { redirect } from "./main.js";
 async function preventDefault() {
   const form = document.querySelector(".form");
   form.addEventListener("submit", async (event) => {
@@ -38,26 +15,42 @@ async function preventDefault() {
         "Content-Type": "application/json",
       },
       body: chargeUtile,
+    }).then((response) => {
+      if (response.ok) {
+        verificationinput(response.status);
+        token(response);
+        veriftoken();
+        redirect("../index.html");
+      } else {
+        verificationinput(response.status);
+      }
     });
-    token();
   });
 }
 preventDefault();
-
-function verificationinput() {
-  const email = document.getElementById("email");
-  const motDePasse = document.getElementById("motdepasse");
-  email.addEventListener("change", (event) => {
-    console.log(email);
-    email.classList.add("red");
-  });
-  motDePasse.addEventListener("change", (event) => {
-    console.log(motDePasse);
-    motDePasse.classList.add("red");
-  });
+async function token(tokens) {
+  const responseData = await tokens.json();
+  const takeToken = responseData.token;
+  localStorage.setItem("token", takeToken);
 }
 
-function token(tokens) {
-  const takeToken = tokens.token;
-  console.log(takeToken);
+function verificationinput(status) {
+  const idEmail = document.getElementById("email");
+  const idMotDePasse = document.getElementById("motdepasse");
+  const incorrect = document.querySelector(".red--letters");
+  if (status === 200) {
+    idEmail.classList.remove("red");
+    idMotDePasse.classList.remove("red");
+    incorrect.classList.add("hide");
+  } else {
+    incorrect.classList.remove("hide");
+    idEmail.classList.add("red");
+    idMotDePasse.classList.add("red");
+  }
 }
+
+function veriftoken() {
+  const storedToken = localStorage.getItem("token");
+  return storedToken;
+}
+export { veriftoken };

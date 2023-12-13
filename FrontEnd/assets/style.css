@@ -239,6 +239,13 @@ li:hover {
 .hide {
   display: none;
 }
+.red {
+  background-color: rgb(143, 27, 27);
+}
+.red--letters {
+  color: rgb(143, 27, 27);
+  font-size: large;
+}
 #contact {
   width: 50%;
   margin: auto;
@@ -325,8 +332,4 @@ footer nav ul {
 }
 #container__connexion a {
   color: black;
-}
-
-.red {
-  background-color: red;
 }

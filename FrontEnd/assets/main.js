@@ -75,9 +75,7 @@ async function initFiltre(works) {
   const listeFilter = document.querySelectorAll(".list-btn--style");
   listeFilter.forEach((button) => {
     button.addEventListener("click", () => {
-      //console.log(button);
       const dataId = button.dataset.id;
-      //console.log(dataId);
       const attr = button.getAttribute("data-id");
       listeFilter.forEach((btn) => btn.classList.remove("list-btn__selected"));
       button.classList.add("list-btn__selected");
@@ -86,4 +84,29 @@ async function initFiltre(works) {
   });
 }
 
+function ciblageBaliseLi() {
+  let baliseUl = document.querySelector("nav ul");
+  const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
+  baliseLiLogin.addEventListener("click", () => {
+    redirect("./assets/login.html");
+  });
+}
+
+function redirect(chemin) {
+  const cheminRedirection = chemin;
+  window.location.href = cheminRedirection;
+}
+ciblageBaliseLi();
+
+export { redirect };
 export { getWorks };
+
+import { veriftoken } from "./login.js";
+
+function modeAdmin() {
+  veriftoken();
+  if (veriftoken == "string") {
+    console.log(veriftoken());
+  }
+}
+modeAdmin();

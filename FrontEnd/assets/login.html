@@ -28,12 +28,15 @@
     <main id="container__connexion">
       <form method="post" class="form">
         <h2>Log In</h2>
+        <h3 class="hide red--letters">
+          Erreur dans l’identifiant ou le mot de passe
+        </h3>
         <div>
-          <label><b>E-mail</b></label>
+          <label class="email"><b>E-mail</b></label>
           <input type="email" name="email" id="email" required />
         </div>
         <div>
-          <label><b>Mot de passe</b></label>
+          <label class="password"><b>Mot de passe</b></label>
           <input type="password" name="password" id="motdepasse" required />
         </div>
         <input type="submit" id="submit" value="Se connecter" />
