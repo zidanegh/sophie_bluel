@@ -1,5 +1,6 @@
 import { redirect } from "./main.js";
-async function preventDefault() {
+
+async function preventDefaults() {
   const form = document.querySelector(".form");
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -7,7 +8,6 @@ async function preventDefault() {
       email: event.target.querySelector("[name=email]").value,
       password: event.target.querySelector("[name=password]").value,
     };
-    console.log(connexion);
     const chargeUtile = JSON.stringify(connexion);
     await fetch("http://localhost:5678/api/users/login", {
       method: "POST",
@@ -15,26 +15,27 @@ async function preventDefault() {
         "Content-Type": "application/json",
       },
       body: chargeUtile,
-    }).then((response) => {
+    }).then(async (response) => {
       if (response.ok) {
-        verificationinput(response.status);
-        token(response);
-        veriftoken();
+        console.log(response);
+        verificationInput(response.status);
+        await token(response);
         redirect("../index.html");
       } else {
-        verificationinput(response.status);
+        verificationInput(response.status);
       }
     });
   });
 }
-preventDefault();
+preventDefaults();
+
 async function token(tokens) {
   const responseData = await tokens.json();
   const takeToken = responseData.token;
   localStorage.setItem("token", takeToken);
 }
 
-function verificationinput(status) {
+function verificationInput(status) {
   const idEmail = document.getElementById("email");
   const idMotDePasse = document.getElementById("motdepasse");
   const incorrect = document.querySelector(".red--letters");
@@ -49,8 +50,20 @@ function verificationinput(status) {
   }
 }
 
-function veriftoken() {
+function verificateurBoeleen() {
+  if (verificationInput === false) {
+    console.log("poule");
+  } else {
+    console.log("fouine");
+    console.log(verificationInput());
+  }
+}
+
+function verifToken() {
   const storedToken = localStorage.getItem("token");
+
   return storedToken;
 }
-export { veriftoken };
+export { verifToken };
+export { verificateurBoeleen };
+export { preventDefaults };
