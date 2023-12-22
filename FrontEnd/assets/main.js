@@ -1,3 +1,4 @@
+import { redirect } from "./util.js";
 async function getWorks() {
   const response = await fetch("http://localhost:5678/api/works");
   const works = await response.json();
@@ -12,29 +13,40 @@ async function getcategories() {
 
 function cardUi(work) {
   return `
-        <figure>
+        <figure id="${work.id}">
           <img src="${work.imageUrl}" alt="${work.title}"/>
           <figcaption >${work.title}</figcaption>
         </figure>
   `;
 }
 
-function displayWorks(listeWork, image) {
+function imageModal(work) {
+  return `
+        <figure>
+          <img src="${work.imageUrl}" alt="${work.title}"/>
+          <i class="fa-solid fa-trash-can"></i>
+        </figure>
+  `;
+}
+
+function displayWorks(listeWork, image, param) {
   const gallery = document.querySelector(image);
   gallery.innerHTML = "";
   listeWork.forEach((item) => {
-    const nodeui = cardUi(item);
+    const nodeui = param(item);
+
     gallery.innerHTML += nodeui;
   });
 }
 
-async function initPage() {
+async function initPage(param, param2, param3) {
   const listeWorks = await getWorks();
-  displayWorks(listeWorks, ".gallery");
-  initFiltre(listeWorks);
+  displayWorks(listeWorks, param, param2);
+  param3(listeWorks);
+  console.log(listeWorks.length);
 }
 
-initPage();
+initPage(".gallery", cardUi, initFiltre);
 
 function category(categorie) {
   return `
@@ -66,7 +78,7 @@ function filtreur(idCategory, works) {
   } else {
     workResult = works.filter((work) => work.categoryId === id);
   }
-  displayWorks(workResult, ".gallery");
+  displayWorks(workResult, ".gallery", cardUi);
 }
 
 async function initFiltre(works) {
@@ -75,7 +87,6 @@ async function initFiltre(works) {
   listeFilter.forEach((button) => {
     button.addEventListener("click", () => {
       const dataId = button.dataset.id;
-
       listeFilter.forEach((btn) => btn.classList.remove("list-btn__selected"));
       button.classList.add("list-btn__selected");
       filtreur(dataId, works);
@@ -89,22 +100,11 @@ function ciblageBaliseLi() {
   let baliseUl = document.querySelector("nav ul");
   const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
   baliseLiLogin.addEventListener("click", () => {
-    redirect("./assets/login.html");
+    redirect("./login.html");
   });
 }
 
-function redirect(chemin, preciserFunction) {
-  const cheminRedirection = chemin;
-  window.location.href = cheminRedirection;
-}
 ciblageBaliseLi();
-
-export { redirect };
-export { getWorks };
-
-import { verifToken } from "./login.js";
-import { verificateurBoeleen } from "./login.js";
-import { preventDefaults } from "./login.js";
 
 function modeEdition() {
   return `
@@ -118,17 +118,15 @@ function modifie() {
   </button>
   `;
 }
-
-export { modeAdmin };
+function verifToken() {
+  const storedToken = localStorage.getItem("token");
+  return storedToken;
+}
 function modeAdmin() {
   const edition = document.getElementById("edition");
   const modifier = document.querySelector(".modifier");
   const nodeModeEdition = modeEdition();
   const nodeModifier = modifie();
-  if (edition.classList.contains("edition")) {
-    localStorage.removeItem("token");
-    console.log("avion");
-  }
   if (verifToken() !== null || undefined) {
     console.log("poilu");
     edition.classList.add("edition");
@@ -147,16 +145,60 @@ function modalModifier() {
   btnModifier.addEventListener("click", () => {
     idModal.classList.remove("hide");
     idModal.classList.add("center");
-    displayWorks(listeWorks, ".gallery-modal");
+    initPage(".gallery-modal", imageModal, trashCan);
   });
   idModal.addEventListener("click", () => {
-    console.log("poule");
     idModal.classList.add("hide");
     idModal.classList.remove("center");
-    console.log(idModal.classList);
   });
   Modal.addEventListener("click", (event) => {
     event.stopPropagation();
     event.stopImmediatePropagation();
   });
 }
+
+async function trashCan() {
+  const trash = document.querySelectorAll(".fa-trash-can");
+  const galleryFigureAll = document.querySelectorAll(".gallery figure");
+  console.log(trash);
+  trash.forEach((element) => {
+    element.addEventListener("click", () => {
+      const parentModalFigure = element.parentNode;
+      const img = element.previousElementSibling;
+      const modalImgURL = img.src;
+      const token = verifToken();
+      console.log(token);
+      galleryFigureAll.forEach((element) => {
+        const galleryFigure = element;
+        const galleryId = element.id;
+        const galleryImg = element.firstElementChild;
+        const galleryImgURL = galleryImg.src;
+        const id = Number.parseInt(galleryId);
+        if (galleryImgURL === modalImgURL) {
+          fetch("http://localhost:5678/api/works/" + id, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "bearer " + token,
+            },
+          })
+            .then((response) => {
+              parentModalFigure.classList.add("hide");
+              galleryFigure.classList.add("hide");
+              console.log(response);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+          console.log(localStorage.getItem("token"));
+          console.log(galleryId, modalImgURL, galleryImgURL);
+        }
+      });
+    });
+  });
+}
+
+function modalBtn() {}
+
+export { modeAdmin };
+export { getWorks };

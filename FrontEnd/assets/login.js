@@ -1,6 +1,6 @@
-import { redirect } from "./main.js";
+import { redirect } from "./util.js";
 
-async function preventDefaults() {
+async function validateurFormulaire() {
   const form = document.querySelector(".form");
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -20,14 +20,14 @@ async function preventDefaults() {
         console.log(response);
         verificationInput(response.status);
         await token(response);
-        redirect("../index.html");
+        redirect("./index.html");
       } else {
         verificationInput(response.status);
       }
     });
   });
 }
-preventDefaults();
+validateurFormulaire();
 
 async function token(tokens) {
   const responseData = await tokens.json();
@@ -49,21 +49,3 @@ function verificationInput(status) {
     idMotDePasse.classList.add("red");
   }
 }
-
-function verificateurBoeleen() {
-  if (verificationInput === false) {
-    console.log("poule");
-  } else {
-    console.log("fouine");
-    console.log(verificationInput());
-  }
-}
-
-function verifToken() {
-  const storedToken = localStorage.getItem("token");
-
-  return storedToken;
-}
-export { verifToken };
-export { verificateurBoeleen };
-export { preventDefaults };
