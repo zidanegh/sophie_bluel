@@ -375,12 +375,13 @@ footer nav ul {
   align-items: center;
   padding: 25px;
   background-color: white;
-  height: 400px;
+  height: 450px;
   width: 400px;
 }
 
 .modal-wrapper h3 {
-  margin-top: 20px;
+  font-size: large;
+  margin-top: 5px;
   margin-bottom: 25px;
 }
 
@@ -398,7 +399,11 @@ footer nav ul {
   width: 70%;
   max-height: 80%;
 }
-
+.icon-modal {
+  display: flex;
+  justify-content: flex-end;
+  width: inherit;
+}
 .gallery-modal img {
   margin: 0px 10px 15px 0px;
   margin-bottom: 15px;
@@ -428,4 +433,101 @@ footer nav ul {
   right: 10px;
   z-index: 2;
   font-size: 0.5em;
+}
+.icons-modal {
+  display: flex;
+  justify-content: space-between;
+  width: inherit;
+}
+.icons-modal .fa-arrow-left {
+  font-size: 1.3em;
+}
+
+.ajout .gallery-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 80%;
+  width: 80%;
+}
+.ajout form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+#input-img {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: inherit;
+  height: 18vh;
+  background-color: #e8f1f6;
+  margin-bottom: 20px;
+}
+#input-img p {
+  font-size: 10px;
+  font-weight: 400;
+  color: #444444;
+}
+
+#input-img input[type="image"] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #cbd6dc;
+  border: 1px solid #cbd6dc;
+  border-radius: 50px;
+  width: 173px;
+  height: 36px;
+}
+
+#input-img input[value="+ Ajouter photo"] {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #306685;
+}
+#input-img .fa-image {
+  font-size: 50px;
+  color: #b9c5cc;
+}
+#input-titre {
+  width: calc(inherit - 10px);
+  border: none;
+  height: 4vh;
+  box-shadow: 0px 4px 14px 0px #00000017;
+  margin-bottom: 20px;
+}
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: inherit;
+}
+.input-wrapper label {
+  font-size: smaller;
+}
+
+.input-wrapper select {
+  background-color: white;
+  border: none;
+  height: 5vh;
+  width: inherit;
+  box-shadow: 0px 4px 14px 0px #00000017;
+  margin-bottom: 20px;
+}
+
+#btn-modal-valider {
+  width: 237px;
+  height: 36px;
+  font-size: smaller;
+}
+.gray {
+  border: 1px solid #a7a7a7;
+  background-color: #a7a7a7;
+  color: white;
 }

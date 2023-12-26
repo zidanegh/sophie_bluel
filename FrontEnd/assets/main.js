@@ -1,4 +1,5 @@
 import { redirect } from "./util.js";
+
 async function getWorks() {
   const response = await fetch("http://localhost:5678/api/works");
   const works = await response.json();
@@ -34,7 +35,6 @@ function displayWorks(listeWork, image, param) {
   gallery.innerHTML = "";
   listeWork.forEach((item) => {
     const nodeui = param(item);
-
     gallery.innerHTML += nodeui;
   });
 }
@@ -43,7 +43,6 @@ async function initPage(param, param2, param3) {
   const listeWorks = await getWorks();
   displayWorks(listeWorks, param, param2);
   param3(listeWorks);
-  console.log(listeWorks.length);
 }
 
 initPage(".gallery", cardUi, initFiltre);
@@ -54,17 +53,19 @@ function category(categorie) {
   `;
 }
 
-async function initbtn() {
+async function initbtn(param, param2, param3) {
   const listeCategories = await getcategories();
-  const listBtn = document.querySelector(".list-btn");
-  const createBtn = document.createElement("button");
-  createBtn.classList.add("list-btn--style");
-  createBtn.classList.add("list-btn__selected");
-  createBtn.setAttribute("data-id", 0);
-  listBtn.appendChild(createBtn);
-  createBtn.innerHTML = "tous";
+  const listBtn = document.querySelector(param);
+  const createBtn = document.createElement(param2);
+  if (createBtn !== null || undefined) {
+    createBtn.classList.add("list-btn--style");
+    createBtn.classList.add("list-btn__selected");
+    createBtn.setAttribute("data-id", 0);
+    listBtn.appendChild(createBtn);
+    createBtn.innerHTML = "tous";
+  }
   listeCategories.forEach((item) => {
-    const nodeui = category(item);
+    const nodeui = param3(item);
     listBtn.innerHTML += nodeui;
   });
   return listeCategories;
@@ -82,7 +83,7 @@ function filtreur(idCategory, works) {
 }
 
 async function initFiltre(works) {
-  await initbtn();
+  await initbtn(".list-btn", "button", category);
   const listeFilter = document.querySelectorAll(".list-btn--style");
   listeFilter.forEach((button) => {
     button.addEventListener("click", () => {
@@ -93,7 +94,6 @@ async function initFiltre(works) {
     });
   });
   modeAdmin();
-  modalModifier();
 }
 
 function ciblageBaliseLi() {
@@ -128,24 +128,33 @@ function modeAdmin() {
   const nodeModeEdition = modeEdition();
   const nodeModifier = modifie();
   if (verifToken() !== null || undefined) {
-    console.log("poilu");
     edition.classList.add("edition");
     edition.innerHTML += nodeModeEdition;
     modifier.innerHTML += nodeModifier;
+    modalModifier(document.querySelector(".btnModifier"), "supprime", initPage);
+    modalBtnAjout();
+    validateurFormulaire();
   } else {
-    console.log(verifToken());
     console.log("poil");
   }
 }
 
-function modalModifier() {
-  const btnModifier = document.querySelector(".btnModifier");
-  const idModal = document.getElementById("modal-Modifier");
-  const Modal = document.querySelector(".modal-wrapper");
+function modalModifier(param, param2) {
+  const btnModifier = param;
+  const idModal = document.getElementById("modal-Modifier-" + param2);
+  const Modal = document.querySelector("." + param2);
   btnModifier.addEventListener("click", () => {
-    idModal.classList.remove("hide");
-    idModal.classList.add("center");
-    initPage(".gallery-modal", imageModal, trashCan);
+    if (btnModifier === document.querySelector(".btnModifier")) {
+      const modalSupprime = document.querySelector(".btnModifier");
+      modalSupprime.classList.remove("center");
+      modalSupprime.classList.add("hide");
+      idModal.classList.remove("hide");
+      idModal.classList.add("center");
+    } else {
+      idModal.classList.remove("hide");
+      idModal.classList.add("center");
+      initPage(".gallery-modal", imageModal, trashCan);
+    }
   });
   idModal.addEventListener("click", () => {
     idModal.classList.add("hide");
@@ -160,14 +169,12 @@ function modalModifier() {
 async function trashCan() {
   const trash = document.querySelectorAll(".fa-trash-can");
   const galleryFigureAll = document.querySelectorAll(".gallery figure");
-  console.log(trash);
   trash.forEach((element) => {
     element.addEventListener("click", () => {
       const parentModalFigure = element.parentNode;
       const img = element.previousElementSibling;
       const modalImgURL = img.src;
       const token = verifToken();
-      console.log(token);
       galleryFigureAll.forEach((element) => {
         const galleryFigure = element;
         const galleryId = element.id;
@@ -181,24 +188,56 @@ async function trashCan() {
               "Content-Type": "application/json",
               Authorization: "bearer " + token,
             },
-          })
-            .then((response) => {
-              parentModalFigure.classList.add("hide");
-              galleryFigure.classList.add("hide");
-              console.log(response);
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-          console.log(localStorage.getItem("token"));
-          console.log(galleryId, modalImgURL, galleryImgURL);
+          }).then(() => {
+            parentModalFigure.classList.add("hide");
+            galleryFigure.classList.add("hide");
+          });
         }
       });
     });
   });
 }
 
-function modalBtn() {}
+async function modalBtnAjout() {
+  const btnAjout = document.getElementById("btn-modal");
+  btnAjout.addEventListener("click", () => {
+    modalModifier(btnAjout, "ajout", undefined);
+  });
+}
 
+function formUI(work) {
+  return `
+  <option class="option" id="${work.id}"><p>${work.name}</p></option>`;
+}
+
+async function validateurFormulaire() {
+  const form = document.querySelector(".ajout");
+  const token = verifToken();
+  await initbtn(".categoriesid", null, formUI);
+  const arrayOption= document.querySelectorAll(".option")
+  const option = arrayOption.forEach(element => {
+    element.target.querySelector(""+element)
+  });
+  console.log(option);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const ajoutProjet = {
+      imageUrl: event.target.querySelector("[name=ajout-image]").value,
+      title: event.target.querySelector("[id=input-titre]").value,
+      category:
+    };
+    console.log(ajoutProjet);
+    const chargeUtile = JSON.stringify(ajoutProjet);
+    await fetch("http://localhost:5678/api/works", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "bearer " + token,
+      },
+      body: chargeUtile,
+    });
+  });
+}
+function rien() {}
 export { modeAdmin };
 export { getWorks };
