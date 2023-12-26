@@ -131,38 +131,60 @@ function modeAdmin() {
     edition.classList.add("edition");
     edition.innerHTML += nodeModeEdition;
     modifier.innerHTML += nodeModifier;
-    modalModifier(document.querySelector(".btnModifier"), "supprime", initPage);
-    modalBtnAjout();
+    modalModifier();
     validateurFormulaire();
   } else {
     console.log("poil");
   }
 }
 
-function modalModifier(param, param2) {
-  const btnModifier = param;
-  const idModal = document.getElementById("modal-Modifier-" + param2);
-  const Modal = document.querySelector("." + param2);
-  btnModifier.addEventListener("click", () => {
-    if (btnModifier === document.querySelector(".btnModifier")) {
-      const modalSupprime = document.querySelector(".btnModifier");
-      modalSupprime.classList.remove("center");
-      modalSupprime.classList.add("hide");
-      idModal.classList.remove("hide");
-      idModal.classList.add("center");
-    } else {
-      idModal.classList.remove("hide");
-      idModal.classList.add("center");
+function modalModifier() {
+  const btnModifier = document.querySelector(".btnModifier");
+  const btnAjout = document.getElementById("btn-modal");
+  const idModalSupprime = document.getElementById("modal-Modifier-supprime");
+  const idModalAjout = document.getElementById("modal-Modifier-ajout");
+  const modalSupprime = document.getElementById("supprime");
+  const modalAjout = document.getElementById("ajout");
+  const modalArrowLeft = document.querySelector(".fa-arrow-left");
+  const ModalXmark = document.querySelectorAll(".fa-xmark");
+  [modalArrowLeft, btnModifier].forEach((element) => {
+    element.addEventListener("click", () => {
+      idModalSupprime.classList.remove("hide");
+      idModalSupprime.classList.add("center");
+      idModalAjout.classList.add("hide");
+      idModalAjout.classList.remove("center");
       initPage(".gallery-modal", imageModal, trashCan);
-    }
+    });
   });
-  idModal.addEventListener("click", () => {
-    idModal.classList.add("hide");
-    idModal.classList.remove("center");
+  idModalSupprime.addEventListener("click", () => {
+    idModalSupprime.classList.add("hide");
+    idModalSupprime.classList.remove("center");
   });
-  Modal.addEventListener("click", (event) => {
+  btnAjout.addEventListener("click", () => {
+    idModalAjout.classList.remove("hide");
+    idModalAjout.classList.add("center");
+    idModalSupprime.classList.add("hide");
+    idModalSupprime.classList.remove("center");
+  });
+  idModalAjout.addEventListener("click", () => {
+    idModalAjout.classList.add("hide");
+    idModalAjout.classList.remove("center");
+  });
+  modalSupprime.addEventListener("click", (event) => {
     event.stopPropagation();
     event.stopImmediatePropagation();
+  });
+  modalAjout.addEventListener("click", (event) => {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  });
+  ModalXmark.forEach((element) => {
+    element.addEventListener("click", () => {
+      idModalAjout.classList.add("hide");
+      idModalAjout.classList.remove("center");
+      idModalSupprime.classList.add("hide");
+      idModalSupprime.classList.remove("center");
+    });
   });
 }
 
@@ -198,46 +220,44 @@ async function trashCan() {
   });
 }
 
-async function modalBtnAjout() {
-  const btnAjout = document.getElementById("btn-modal");
-  btnAjout.addEventListener("click", () => {
-    modalModifier(btnAjout, "ajout", undefined);
-  });
-}
-
 function formUI(work) {
   return `
-  <option class="option" id="${work.id}"><p>${work.name}</p></option>`;
+  <option value="${work.id}">${work.name}</option>`;
 }
 
 async function validateurFormulaire() {
   const form = document.querySelector(".ajout");
   const token = verifToken();
   await initbtn(".categoriesid", null, formUI);
-  const arrayOption= document.querySelectorAll(".option")
-  const option = arrayOption.forEach(element => {
-    element.target.querySelector(""+element)
-  });
-  console.log(option);
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const ajoutProjet = {
-      imageUrl: event.target.querySelector("[name=ajout-image]").value,
-      title: event.target.querySelector("[id=input-titre]").value,
-      category:
-    };
-    console.log(ajoutProjet);
-    const chargeUtile = JSON.stringify(ajoutProjet);
+    const data = new FormData();
+    data.append(
+      "categoryId",
+      event.target.querySelector("[name=categorie]").value
+    );
+    data.append(
+      "title",
+      event.target.querySelector("[name=input-titre]").value
+    );
+    data.append(
+      "imageUrl",
+      event.target.querySelector("[name=ajout-image]").value
+    );
+    console.log(data);
+    const work = JSON.stringify(data);
+    console.log(work);
     await fetch("http://localhost:5678/api/works", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": " multipart/form-data",
+        accept: "application/json",
         Authorization: "bearer " + token,
       },
-      body: chargeUtile,
+      body: data,
     });
   });
 }
-function rien() {}
+
 export { modeAdmin };
 export { getWorks };
