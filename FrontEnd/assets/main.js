@@ -153,7 +153,7 @@ function modalModifier() {
       idModalSupprime.classList.add("center");
       idModalAjout.classList.add("hide");
       idModalAjout.classList.remove("center");
-      initPage(".gallery-modal", imageModal, trashCan);
+      initPage(".gallery-modal-supprime", imageModal, trashCan);
     });
   });
   idModalSupprime.addEventListener("click", () => {
@@ -210,16 +210,19 @@ async function trashCan() {
               "Content-Type": "application/json",
               Authorization: "bearer " + token,
             },
-          }).then(() => {
-            parentModalFigure.classList.add("hide");
-            galleryFigure.classList.add("hide");
+          }).then(async (response) => {
+            if (response.status === 204) {
+              parentModalFigure.classList.add("hide");
+              galleryFigure.classList.add("hide");
+            } else {
+              console.log(response.status);
+            }
           });
         }
       });
     });
   });
 }
-
 function formUI(work) {
   return `
   <option value="${work.id}">${work.name}</option>`;
@@ -229,34 +232,46 @@ async function validateurFormulaire() {
   const form = document.querySelector(".ajout");
   const token = verifToken();
   await initbtn(".categoriesid", null, formUI);
+  previewImage();
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData();
-    data.append(
-      "categoryId",
-      event.target.querySelector("[name=categorie]").value
-    );
+    const image = event.target.querySelector("[name=ajout-image]");
+    const category = event.target.querySelector("[name=categorie]");
+    data.append("image", image.files[0]);
     data.append(
       "title",
       event.target.querySelector("[name=input-titre]").value
     );
-    data.append(
-      "imageUrl",
-      event.target.querySelector("[name=ajout-image]").value
-    );
+    data.append("category", parseInt(category.value));
     console.log(data);
-    const work = JSON.stringify(data);
-    console.log(work);
     await fetch("http://localhost:5678/api/works", {
       method: "POST",
       headers: {
-        "Content-Type": " multipart/form-data",
-        accept: "application/json",
         Authorization: "bearer " + token,
       },
       body: data,
+    }).then((response) => {
+      if (response.status === 201) {
+        console.log("ça fonctionne");
+      } else {
+        console.log(response);
+      }
     });
   });
+}
+
+function previewImage() {
+  const label = document.querySelector("[for=upload-img]");
+  const image = document.querySelector("[name=ajout-image]");
+  label.addEventListener("click", () => {
+    const labelImage = document.createElement("img");
+    label.appendChild(labelImage);
+    const imageSrc = image.file[0];
+    labelImage.src = imageSrc;
+    console.log(imageSrc);
+  });
+  console.log(label);
 }
 
 export { modeAdmin };

@@ -67,7 +67,7 @@
             <div id="supprime" class="modal-wrapper supprime">
               <div class="icon-modal"><i class="fa-solid fa-xmark"></i></div>
               <h3>Galerie photo</h3>
-              <div class="gallery-modal"></div>
+              <div class="gallery-modal-supprime"></div>
               <div class="btn__div">
                 <button
                   id="btn-modal"
@@ -91,28 +91,32 @@
                 ><i class="fa-solid fa-xmark"></i>
               </div>
               <h3>Ajout photo</h3>
-              <div class="gallery-modal">
-                <form method="post">
-                  <div id="input-img">
-                    <i class="fa-regular fa-image"></i>
-                    <input
-                      type="file"
-                      class="btn-input-img"
-                      value="+ Ajouter photo"
-                      name="ajout-image"
-                      required
-                    />
-                    <p>jpg, png : 4mo max</p>
-                  </div>
+              <div class="gallery-modal-ajout">
+                <form method="post" enctype="multipart/form-data">
                   <div class="input-wrapper">
-                    <label for="titre">Titre</label>
-                    <input type="text" name="input-titre" required />
-                  </div>
-                  <div class="input-wrapper">
-                    <label for="categorie">Catégorie</label>
-                    <select name="categorie" class="categoriesid">
-                      <option value=" "><p></p></option>
-                    </select>
+                    <div id="input-img">
+                      <i class="fa-regular fa-image"></i>
+                      <label for="upload-img">+ Ajouter photo</label>
+                      <input
+                        accept="image/png, image/jpeg"
+                        id="upload-img"
+                        type="file"
+                        class="btn-input-img"
+                        name="ajout-image"
+                        required
+                      />
+                      <p>jpg, png : 4mo max</p>
+                    </div>
+                    <div class="input-div">
+                      <label for="titre">Titre</label>
+                      <input type="text" name="input-titre" required />
+                    </div>
+                    <div class="input-div">
+                      <label for="categorie">Catégorie</label>
+                      <select name="categorie" class="categoriesid">
+                        <option value=" "><p></p></option>
+                      </select>
+                    </div>
                   </div>
                   <button id="btn-modal-valider" class="list-btn--style gray">
                     Ajouter une photo
