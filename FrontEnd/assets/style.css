@@ -215,6 +215,7 @@ li:hover {
   font-family: "Syne";
   color: #1d6154;
   border-radius: 40px;
+  border: 1px solid #1d6154;
   background-color: white;
   padding: 5px 20px;
 }
@@ -233,6 +234,14 @@ li:hover {
 
 .gallery img {
   width: 100%;
+}
+li [href="#portfolio"] {
+  color: black;
+  text-decoration: none;
+}
+li [href="../index.html"] {
+  color: black;
+  text-decoration: none;
 }
 
 .hide {
@@ -255,6 +264,7 @@ li:hover {
   background-color: black;
   color: white;
   width: 100%;
+  height: 50px;
   margin: none;
   display: flex;
   justify-content: center;
@@ -264,7 +274,7 @@ li:hover {
 .modifier {
   display: flex;
   justify-content: center;
-  align-items: baseline;
+
   gap: 10px;
 }
 .modifier i {
@@ -387,6 +397,8 @@ footer nav ul {
 .btnModifier {
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 23px;
   gap: 10px;
   background-color: rgba(0, 0, 0, 0);
   border: none;
@@ -473,6 +485,8 @@ footer nav ul {
   height: 18vh;
   background-color: #e8f1f6;
   margin-bottom: 20px;
+  z-index: 3;
+  position: relative;
 }
 #input-img p {
   font-size: 10px;
@@ -480,7 +494,7 @@ footer nav ul {
   color: #444444;
 }
 
-#input-img label {
+#input-img .label {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -501,6 +515,14 @@ footer nav ul {
 #input-img .fa-image {
   font-size: 50px;
   color: #b9c5cc;
+}
+.display-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
+  z-index: 4;
+  position: absolute;
 }
 [name="input-titre"] {
   border: none;
@@ -535,7 +557,8 @@ footer nav ul {
   margin-bottom: 20px;
 }
 
-#btn-modal-valider {
+#btn-modal-valider,
+#btn-valide-projet {
   width: 237px;
   height: 36px;
   font-size: small;
@@ -544,4 +567,40 @@ footer nav ul {
   border: 1px solid #a7a7a7;
   background-color: #a7a7a7;
   color: white;
+}
+.green {
+  border: 1px solid #1d6154;
+  background-color: #1d6154;
+  color: white;
+}
+.div-btn {
+  display: grid;
+  position: relative;
+}
+.principal {
+  z-index: 2;
+}
+.valide {
+  background-color: white;
+  position: absolute;
+  animation: animevalide 1500ms ease-in-out;
+  color: #1d6154;
+  z-index: 0;
+}
+
+@keyframes animevalide {
+  100% {
+    opacity: 100%;
+    z-index: 0;
+  }
+  1% {
+    z-index: 5;
+  }
+  99% {
+    z-index: 5;
+  }
+  100% {
+    opacity: 0%;
+    z-index: 0;
+  }
 }

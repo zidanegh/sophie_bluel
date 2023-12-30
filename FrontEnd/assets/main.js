@@ -1,4 +1,13 @@
 import { redirect } from "./util.js";
+import {
+  projetValideUi,
+  formOptionUI,
+  modifie,
+  modeEdition,
+  category,
+  imageModal,
+  cardUi,
+} from "./textInnerHTML.js";
 
 async function getWorks() {
   const response = await fetch("http://localhost:5678/api/works");
@@ -10,24 +19,6 @@ async function getcategories() {
   const response = await fetch("http://localhost:5678/api/categories");
   const categories = await response.json();
   return categories;
-}
-
-function cardUi(work) {
-  return `
-        <figure id="${work.id}">
-          <img src="${work.imageUrl}" alt="${work.title}"/>
-          <figcaption >${work.title}</figcaption>
-        </figure>
-  `;
-}
-
-function imageModal(work) {
-  return `
-        <figure>
-          <img src="${work.imageUrl}" alt="${work.title}"/>
-          <i class="fa-solid fa-trash-can"></i>
-        </figure>
-  `;
 }
 
 function displayWorks(listeWork, image, param) {
@@ -42,16 +33,12 @@ function displayWorks(listeWork, image, param) {
 async function initPage(param, param2, param3) {
   const listeWorks = await getWorks();
   displayWorks(listeWorks, param, param2);
-  param3(listeWorks);
+  if (param3 !== undefined) {
+    param3(listeWorks);
+  }
 }
 
 initPage(".gallery", cardUi, initFiltre);
-
-function category(categorie) {
-  return `
-      <button data-id="${categorie.id}" class="list-btn--style">${categorie.name}</button>
-  `;
-}
 
 async function initbtn(param, param2, param3) {
   const listeCategories = await getcategories();
@@ -106,18 +93,6 @@ function ciblageBaliseLi() {
 
 ciblageBaliseLi();
 
-function modeEdition() {
-  return `
-  <i class="fa-regular fa-pen-to-square"></i><p>Mode edition</p>
-  `;
-}
-function modifie() {
-  return `
-  <button class="btnModifier">
-  <i class="fa-regular fa-pen-to-square"></i><p>modifier</p>
-  </button>
-  `;
-}
 function verifToken() {
   const storedToken = localStorage.getItem("token");
   return storedToken;
@@ -148,12 +123,12 @@ function modalModifier() {
   const modalArrowLeft = document.querySelector(".fa-arrow-left");
   const ModalXmark = document.querySelectorAll(".fa-xmark");
   [modalArrowLeft, btnModifier].forEach((element) => {
-    element.addEventListener("click", () => {
+    element.addEventListener("click", async () => {
       idModalSupprime.classList.remove("hide");
       idModalSupprime.classList.add("center");
       idModalAjout.classList.add("hide");
       idModalAjout.classList.remove("center");
-      initPage(".gallery-modal-supprime", imageModal, trashCan);
+      await initPage(".gallery-modal-supprime", imageModal, trashCan);
     });
   });
   idModalSupprime.addEventListener("click", () => {
@@ -214,6 +189,7 @@ async function trashCan() {
             if (response.status === 204) {
               parentModalFigure.classList.add("hide");
               galleryFigure.classList.add("hide");
+              const removeFigure = element.parentNode.removeChild(element);
             } else {
               console.log(response.status);
             }
@@ -223,16 +199,13 @@ async function trashCan() {
     });
   });
 }
-function formUI(work) {
-  return `
-  <option value="${work.id}">${work.name}</option>`;
-}
 
 async function validateurFormulaire() {
   const form = document.querySelector(".ajout");
   const token = verifToken();
-  await initbtn(".categoriesid", null, formUI);
-  previewImage();
+  await initbtn(".categoriesid", null, formOptionUI);
+  previewImage("1");
+  checkInput();
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData();
@@ -244,16 +217,21 @@ async function validateurFormulaire() {
       event.target.querySelector("[name=input-titre]").value
     );
     data.append("category", parseInt(category.value));
-    console.log(data);
+
     await fetch("http://localhost:5678/api/works", {
       method: "POST",
       headers: {
         Authorization: "bearer " + token,
       },
       body: data,
-    }).then((response) => {
+    }).then(async (response) => {
       if (response.status === 201) {
         console.log("ça fonctionne");
+        previewImage("2");
+        btnValideProjet();
+        clearInput();
+        checkNewProjects();
+        initPage(".gallery", cardUi, undefined);
       } else {
         console.log(response);
       }
@@ -261,18 +239,88 @@ async function validateurFormulaire() {
   });
 }
 
-function previewImage() {
-  const label = document.querySelector("[for=upload-img]");
-  const image = document.querySelector("[name=ajout-image]");
-  label.addEventListener("click", () => {
-    const labelImage = document.createElement("img");
-    label.appendChild(labelImage);
-    const imageSrc = image.file[0];
-    labelImage.src = imageSrc;
-    console.log(imageSrc);
+function btnValideProjet() {
+  const btnAjout = document.getElementById("btn-valide-projet");
+  btnAjout.classList.remove("hide");
+}
+function checkInput() {
+  const btnAjout = document.getElementById("btn-modal-valider");
+  const inputImage = document.getElementById("upload-img");
+  const inputTitre = document.querySelector("[name=input-titre]");
+  const inputCategorie = document.querySelector("[name=categorie]");
+  const form = document.querySelector(".gallery-modal-ajout form");
+  const tableau = [inputImage, inputTitre, inputCategorie];
+
+  tableau.forEach((element) => {
+    element.addEventListener("input", () => {
+      if (checkFormValidity(tableau) === true) {
+        btnAjout.classList.remove("gray");
+        btnAjout.classList.add("green");
+        console.log("ça fonctionne");
+        console.log(checkFormValidity(tableau));
+      } else {
+        btnAjout.classList.add("gray");
+        btnAjout.classList.remove("green");
+      }
+    });
   });
-  console.log(label);
 }
 
+function clearInput() {
+  const inputTitre = document.querySelector("[name=input-titre]");
+  const inputCategorie = document.querySelector("[name=categorie]");
+  const btnAjout = document.getElementById("btn-modal-valider");
+  [inputTitre, inputCategorie].forEach((element) => {
+    element.value = " ";
+  });
+  btnAjout.classList.add("gray");
+  btnAjout.classList.remove("green");
+}
+
+function checkFormValidity(elements) {
+  return elements.every((element) => element.value.trim() !== "");
+}
+
+function previewImage(param) {
+  const divImage = document.getElementById("input-img");
+  const image = document.querySelector("[name=ajout-image]");
+  const label = document.querySelector("[for=upload-img]");
+  const btnAjout = document.getElementById("btn-valide-projet");
+  btnAjout.classList.add("hide");
+  if (param === "1") {
+    image.addEventListener("change", () => {
+      const imageFiles = image.files[0];
+      if (imageFiles) {
+        const imageSrc = URL.createObjectURL(imageFiles);
+        const baliseImg = document.createElement("img");
+        baliseImg.classList.add("display-img");
+        label.classList.add("hide");
+        label.classList.remove("label");
+        divImage.appendChild(baliseImg);
+        baliseImg.src = imageSrc;
+        console.log(imageSrc);
+      } else {
+        console.log("Aucun fichier sélectionné");
+      }
+    });
+  } else {
+    const baliseImg = document.querySelector("#input-img img");
+    baliseImg.parentNode.removeChild(baliseImg);
+    label.classList.remove("hide");
+    label.classList.add("label");
+  }
+}
+async function checkNewProjects() {
+  const listeworks = await getWorks();
+  const figure = document.querySelectorAll("figure");
+  figure.forEach((element) => {
+    const figureId = element.id;
+    console.log(figureId);
+  });
+  const backEndId = listeworks.forEach((elements) => {
+    const id = elements.id;
+    console.log(id);
+  });
+}
 export { modeAdmin };
 export { getWorks };

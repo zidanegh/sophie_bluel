@@ -96,7 +96,9 @@
                   <div class="input-wrapper">
                     <div id="input-img">
                       <i class="fa-regular fa-image"></i>
-                      <label for="upload-img">+ Ajouter photo</label>
+                      <label class="label" for="upload-img"
+                        >+ Ajouter photo</label
+                      >
                       <input
                         accept="image/png, image/jpeg"
                         id="upload-img"
@@ -118,9 +120,20 @@
                       </select>
                     </div>
                   </div>
-                  <button id="btn-modal-valider" class="list-btn--style gray">
-                    Ajouter une photo
-                  </button>
+                  <div class="div-btn">
+                    <button
+                      id="btn-modal-valider"
+                      class="list-btn--style principal gray"
+                    >
+                      Ajouter une photo
+                    </button>
+                    <button
+                      id="btn-valide-projet"
+                      class="list-btn--style valide hide"
+                    >
+                      Votre projet à était rajouté
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
