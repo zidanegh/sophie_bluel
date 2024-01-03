@@ -1,4 +1,4 @@
-import { redirect } from "./util.js";
+import { redirect, baseUrlServeur } from "./util.js";
 import {
   projetValideUi,
   formOptionUI,
@@ -8,42 +8,68 @@ import {
   imageModal,
   cardUi,
 } from "./textInnerHTML.js";
-
+// cherche les works dans le serveur
 async function getWorks() {
-  const response = await fetch("http://localhost:5678/api/works");
+  const response = await fetch(baseUrlServeur + "works");
   const works = await response.json();
   return works;
 }
-
+//cherche les catégories dans le serveur
 async function getcategories() {
-  const response = await fetch("http://localhost:5678/api/categories");
+  const response = await fetch(baseUrlServeur + "categories");
   const categories = await response.json();
   return categories;
 }
-
-function displayWorks(listeWork, image, param) {
-  const gallery = document.querySelector(image);
+/**
+ * rajoute les elements dans le dom selon ce que va être le tableau
+ *
+ * @param {Array} listeWork utile une boucle pour display les différents projets
+ * @param {string} zoneWork la zone du DOM que l'on cherche
+ * @param {Function} fonctionInnerHtml prend les functions à rajouter dans le html
+ */
+function displayWorks(listeWork, zoneWork, fonctionInnerHtml) {
+  const gallery = document.querySelector(zoneWork);
   gallery.innerHTML = "";
   listeWork.forEach((item) => {
-    const nodeui = param(item);
+    const nodeui = fonctionInnerHtml(item);
     gallery.innerHTML += nodeui;
   });
 }
 
-async function initPage(param, param2, param3) {
+/**
+ * call displayWorks donne le tableau works et rajoute des fonctionalité si besoin
+ *
+ * @param {Array} zoneWork la zone du DOM que l'on cherche
+ * @param {Function} fonctionInnerHtml prend la function à rajouter dans le html
+ * @param {Function} fonctionAjoutFonctionalite prend la function qui rajoute des fonctionalité en plus
+ */
+async function initImage(
+  zoneWork,
+  fonctionInnerHtml,
+  fonctionAjoutFonctionalite
+) {
   const listeWorks = await getWorks();
-  displayWorks(listeWorks, param, param2);
-  if (param3 !== undefined) {
-    param3(listeWorks);
+  displayWorks(listeWorks, zoneWork, fonctionInnerHtml);
+  if (fonctionAjoutFonctionalite !== undefined) {
+    fonctionAjoutFonctionalite(listeWorks);
   }
 }
 
-initPage(".gallery", cardUi, initFiltre);
+//appelle initImage pour afficher les projets sur l'écran principal
+initImage(".gallery", cardUi, initFiltre);
 
-async function initbtn(param, param2, param3) {
+/**
+ * sert soit à créer un btn et attribuer une data-Id et/ou à mettre dans le html des elements
+ *
+ * @param {string} zoneDiv la zone Div qu'on veut utilisé
+ * @param {string} createElement crée un element
+ * @param {Function} fonctionInnerHtml prend les functions à rajouter dans le html
+ * @return {Array} renvois les catégories
+ */
+async function initbtn(zoneDiv, createElement, fonctionInnerHtml) {
   const listeCategories = await getcategories();
-  const listBtn = document.querySelector(param);
-  const createBtn = document.createElement(param2);
+  const listBtn = document.querySelector(zoneDiv);
+  const createBtn = document.createElement(createElement);
   if (createBtn !== null || undefined) {
     createBtn.classList.add("list-btn--style");
     createBtn.classList.add("list-btn__selected");
@@ -52,15 +78,22 @@ async function initbtn(param, param2, param3) {
     createBtn.innerHTML = "tous";
   }
   listeCategories.forEach((item) => {
-    const nodeui = param3(item);
+    const nodeui = fonctionInnerHtml(item);
     listBtn.innerHTML += nodeui;
   });
   return listeCategories;
 }
 
+/**
+ * filtre par id
+ *
+ * @param {string} idCategory prend un chiffre
+ * @param {} works
+ */
 function filtreur(idCategory, works) {
   let workResult;
   const id = Number.parseInt(idCategory);
+
   if (id === 0) {
     workResult = works;
   } else {
@@ -68,7 +101,16 @@ function filtreur(idCategory, works) {
   }
   displayWorks(workResult, ".gallery", cardUi);
 }
-
+async function log() {
+  await getWorks();
+  console.log(works);
+}
+log();
+/**
+ *filtre les works selon le btn
+ *
+ * @param {Array} works c'est le tableau des works qui est récupérer grâce au callback de initfiltre dans le initImage
+ */
 async function initFiltre(works) {
   await initbtn(".list-btn", "button", category);
   const listeFilter = document.querySelectorAll(".list-btn--style");
@@ -83,6 +125,7 @@ async function initFiltre(works) {
   modeAdmin();
 }
 
+/** cible le login en header*/
 function ciblageBaliseLi() {
   let baliseUl = document.querySelector("nav ul");
   const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
@@ -93,10 +136,13 @@ function ciblageBaliseLi() {
 
 ciblageBaliseLi();
 
+/**cherche si il y a un token dans le localStorage*/
 function verifToken() {
   const storedToken = localStorage.getItem("token");
   return storedToken;
 }
+
+/**effectue des changements sur la page d'accueil si verifToken retourne quelque chose*/
 function modeAdmin() {
   const edition = document.getElementById("edition");
   const modifier = document.querySelector(".modifier");
@@ -108,11 +154,10 @@ function modeAdmin() {
     modifier.innerHTML += nodeModifier;
     modalModifier();
     validateurFormulaire();
-  } else {
-    console.log("poil");
   }
 }
 
+/**pour les deux modals et les icons au click ferme ou ouvre l'une des modals*/
 function modalModifier() {
   const btnModifier = document.querySelector(".btnModifier");
   const btnAjout = document.getElementById("btn-modal");
@@ -128,7 +173,7 @@ function modalModifier() {
       idModalSupprime.classList.add("center");
       idModalAjout.classList.add("hide");
       idModalAjout.classList.remove("center");
-      await initPage(".gallery-modal-supprime", imageModal, trashCan);
+      await initImage(".gallery-modal-supprime", imageModal, trashCan);
     });
   });
   idModalSupprime.addEventListener("click", () => {
@@ -163,6 +208,7 @@ function modalModifier() {
   });
 }
 
+/**au click sur la zone de l'icon trashcan supprimera l'image auquel appartient l'icon*/
 async function trashCan() {
   const trash = document.querySelectorAll(".fa-trash-can");
   const galleryFigureAll = document.querySelectorAll(".gallery figure");
@@ -179,7 +225,7 @@ async function trashCan() {
         const galleryImgURL = galleryImg.src;
         const id = Number.parseInt(galleryId);
         if (galleryImgURL === modalImgURL) {
-          fetch("http://localhost:5678/api/works/" + id, {
+          fetch(baseUrlServeur + "works/" + id, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -190,8 +236,6 @@ async function trashCan() {
               parentModalFigure.classList.add("hide");
               galleryFigure.classList.add("hide");
               const removeFigure = element.parentNode.removeChild(element);
-            } else {
-              console.log(response.status);
             }
           });
         }
@@ -200,6 +244,9 @@ async function trashCan() {
   });
 }
 
+/**
+ * valide le formulaire et envoie les informations au serveur pour ajouté les projets
+ */
 async function validateurFormulaire() {
   const form = document.querySelector(".ajout");
   const token = verifToken();
@@ -217,8 +264,7 @@ async function validateurFormulaire() {
       event.target.querySelector("[name=input-titre]").value
     );
     data.append("category", parseInt(category.value));
-
-    await fetch("http://localhost:5678/api/works", {
+    await fetch(baseUrlServeur + "works", {
       method: "POST",
       headers: {
         Authorization: "bearer " + token,
@@ -226,23 +272,27 @@ async function validateurFormulaire() {
       body: data,
     }).then(async (response) => {
       if (response.status === 201) {
-        console.log("ça fonctionne");
         previewImage("2");
         btnValideProjet();
         clearInput();
-        checkNewProjects();
-        initPage(".gallery", cardUi, undefined);
-      } else {
-        console.log(response);
+        initImage(".gallery", cardUi, undefined);
       }
     });
   });
 }
 
+/**
+ * signalement que le projet à était rajouté
+ */
 function btnValideProjet() {
   const btnAjout = document.getElementById("btn-valide-projet");
   btnAjout.classList.remove("hide");
 }
+
+/**
+ * vérifie si les champs inputs sont remplie ou pas et change la couleur du btn selon ce qui est
+ * renvoyé par la function checkFormValidity
+ */
 function checkInput() {
   const btnAjout = document.getElementById("btn-modal-valider");
   const inputImage = document.getElementById("upload-img");
@@ -250,14 +300,11 @@ function checkInput() {
   const inputCategorie = document.querySelector("[name=categorie]");
   const form = document.querySelector(".gallery-modal-ajout form");
   const tableau = [inputImage, inputTitre, inputCategorie];
-
   tableau.forEach((element) => {
     element.addEventListener("input", () => {
       if (checkFormValidity(tableau) === true) {
         btnAjout.classList.remove("gray");
         btnAjout.classList.add("green");
-        console.log("ça fonctionne");
-        console.log(checkFormValidity(tableau));
       } else {
         btnAjout.classList.add("gray");
         btnAjout.classList.remove("green");
@@ -266,6 +313,9 @@ function checkInput() {
   });
 }
 
+/**
+ * vérifie les inputs
+ */
 function clearInput() {
   const inputTitre = document.querySelector("[name=input-titre]");
   const inputCategorie = document.querySelector("[name=categorie]");
@@ -281,13 +331,17 @@ function checkFormValidity(elements) {
   return elements.every((element) => element.value.trim() !== "");
 }
 
-function previewImage(param) {
+/**
+ * affiche une image dans le carré dans la div id input-img
+ * @param {string} choixCondition selon le string affichera la preview ou affiche le label
+ */
+function previewImage(choixCondition) {
   const divImage = document.getElementById("input-img");
   const image = document.querySelector("[name=ajout-image]");
   const label = document.querySelector("[for=upload-img]");
   const btnAjout = document.getElementById("btn-valide-projet");
   btnAjout.classList.add("hide");
-  if (param === "1") {
+  if (choixCondition === "1") {
     image.addEventListener("change", () => {
       const imageFiles = image.files[0];
       if (imageFiles) {
@@ -298,9 +352,6 @@ function previewImage(param) {
         label.classList.remove("label");
         divImage.appendChild(baliseImg);
         baliseImg.src = imageSrc;
-        console.log(imageSrc);
-      } else {
-        console.log("Aucun fichier sélectionné");
       }
     });
   } else {
@@ -310,17 +361,5 @@ function previewImage(param) {
     label.classList.add("label");
   }
 }
-async function checkNewProjects() {
-  const listeworks = await getWorks();
-  const figure = document.querySelectorAll("figure");
-  figure.forEach((element) => {
-    const figureId = element.id;
-    console.log(figureId);
-  });
-  const backEndId = listeworks.forEach((elements) => {
-    const id = elements.id;
-    console.log(id);
-  });
-}
-export { modeAdmin };
-export { getWorks };
+
+export { getWorks, modeAdmin };
