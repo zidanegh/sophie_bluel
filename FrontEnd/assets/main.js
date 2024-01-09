@@ -319,7 +319,10 @@ function checkInput() {
   const form = document.querySelector(".gallery-modal-ajout form");
   const tableau = [inputImage, inputTitre, inputCategorie];
   inputImage.addEventListener("input", (element) => {
-    if (returnExtensionFile(inputImage) === "jpg" && "png") {
+    if (
+      returnExtensionFile(inputImage) === "jpg" ||
+      returnExtensionFile(inputImage) === "png"
+    ) {
       console.log(typeof returnExtensionFile(inputImage));
       console.log("c'est bon");
     } else {
