@@ -458,6 +458,9 @@ footer nav ul {
 .icons-modal .fa-arrow-left {
   font-size: 1.3em;
 }
+.ajout {
+  overflow: scroll;
+}
 
 .ajout .gallery-modal-ajout {
   display: flex;

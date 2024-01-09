@@ -93,7 +93,6 @@ async function initbtn(zoneDiv, createElement, fonctionInnerHtml) {
 function filtreur(idCategory, works) {
   let workResult;
   const id = Number.parseInt(idCategory);
-
   if (id === 0) {
     workResult = works;
   } else {
@@ -101,11 +100,6 @@ function filtreur(idCategory, works) {
   }
   displayWorks(workResult, ".gallery", cardUi);
 }
-async function log() {
-  await getWorks();
-  console.log(works);
-}
-log();
 /**
  *filtre les works selon le btn
  *
@@ -130,11 +124,28 @@ function ciblageBaliseLi() {
   let baliseUl = document.querySelector("nav ul");
   const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
   baliseLiLogin.addEventListener("click", () => {
-    redirect("./login.html");
+    if (baliseLiLogin.textContent === "login") {
+      redirect("./login.html");
+      console.log("ça clique");
+    } else {
+      logout();
+    }
   });
 }
 
 ciblageBaliseLi();
+
+function logout() {
+  const edition = document.getElementById("edition");
+  const modifier = document.querySelector(".modifier");
+  let baliseUl = document.querySelector("nav ul");
+  const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
+  edition.classList.remove("edition");
+  edition.innerHTML = "";
+  modifier.innerHTML = "";
+  localStorage.removeItem("token");
+  baliseLiLogin.innerText = "login";
+}
 
 /**cherche si il y a un token dans le localStorage*/
 function verifToken() {
@@ -146,9 +157,12 @@ function verifToken() {
 function modeAdmin() {
   const edition = document.getElementById("edition");
   const modifier = document.querySelector(".modifier");
+  let baliseUl = document.querySelector("nav ul");
+  const baliseLiLogin = baliseUl.getElementsByTagName("li")[2];
   const nodeModeEdition = modeEdition();
   const nodeModifier = modifie();
   if (verifToken() !== null || undefined) {
+    baliseLiLogin.innerText = "logout";
     edition.classList.add("edition");
     edition.innerHTML += nodeModeEdition;
     modifier.innerHTML += nodeModifier;
@@ -175,6 +189,10 @@ function modalModifier() {
       idModalAjout.classList.remove("center");
       await initImage(".gallery-modal-supprime", imageModal, trashCan);
     });
+  });
+  modalArrowLeft.addEventListener("click", () => {
+    clearInput();
+    previewImage("2");
   });
   idModalSupprime.addEventListener("click", () => {
     idModalSupprime.classList.add("hide");
@@ -300,6 +318,16 @@ function checkInput() {
   const inputCategorie = document.querySelector("[name=categorie]");
   const form = document.querySelector(".gallery-modal-ajout form");
   const tableau = [inputImage, inputTitre, inputCategorie];
+  inputImage.addEventListener("input", (element) => {
+    if (returnExtensionFile(inputImage) === "jpg" && "png") {
+      console.log(typeof returnExtensionFile(inputImage));
+      console.log("c'est bon");
+    } else {
+      inputImage.value = "";
+      console.log("c'est pas bon");
+    }
+  });
+
   tableau.forEach((element) => {
     element.addEventListener("input", () => {
       if (checkFormValidity(tableau) === true) {
@@ -312,7 +340,10 @@ function checkInput() {
     });
   });
 }
-
+function returnExtensionFile(zoneDOM) {
+  const filename = zoneDOM.value;
+  return filename.split(".").pop();
+}
 /**
  * vérifie les inputs
  */
@@ -321,6 +352,7 @@ function clearInput() {
   const inputCategorie = document.querySelector("[name=categorie]");
   const btnAjout = document.getElementById("btn-modal-valider");
   [inputTitre, inputCategorie].forEach((element) => {
+    console.log(element);
     element.value = " ";
   });
   btnAjout.classList.add("gray");
